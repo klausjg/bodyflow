@@ -1,102 +1,539 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>Body Flow</title> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
-  <link rel="apple-touch-icon" href="icon.png">
-  <link rel="icon" type="image/png" href="icon.png">
-  
+  <title>Body Flow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="./manifest.json">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="./icon.png?v=1">
+  <link rel="icon" type="image/png" sizes="32x32" href="./icon.png?v=1">
+  <link rel="icon" type="image/png" sizes="16x16" href="./icon.png?v=1">
+  <link rel="shortcut icon" href="./icon.png?v=1">
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Body Flow"> <style>
-    :root { 
-      /* 3. 테마 색상 변경 (운동/건강에 어울리는 민트&그린) */
-      --primary: #2ecc71; /* 메인 그린 */
-      --secondary: #1abc9c; /* 민트 테일 */
-      --bg: #0d1110; /* 다크 배경 유지 */
+  <meta name="apple-mobile-web-app-title" content="Body Flow">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0A1410">
+
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Pinyon+Script&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      /* ─── Body Flow 테마: 에메랄드 그린 + 골드 ─── */
+      --bg:#0A1410; --surface:#0D1A14; --card:#10201A; --card2:#142A20;
+      --border:#1A3025; --border-light:#26452F;
+      --accent:#2ECC71;              /* 에메랄드 그린 */
+      --accent2:#D4AF37;             /* 골드 (아이콘 리본) */
+      --accent-dim:rgba(46,204,113,0.13);
+      --muted:#3E5A48; --sub:#6B8875; --text:#E8F5ED; --text-dim:#A8C4B2;
+      --mono:'IBM Plex Mono',monospace;
+      --sans:'Noto Sans KR',-apple-system,'Malgun Gothic',sans-serif;
+      --script:'Pinyon Script',cursive;
     }
-    
-    body, html { 
-      background: var(--bg); 
-      margin: 0; padding: 0; 
-      width: 100%; height: 100%; 
-      overflow: hidden; 
-      font-family: -apple-system, sans-serif;
+
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+    body, html {
+      background: var(--bg);
+      width:100%; height:100%;
+      overflow:hidden;
+      font-family: var(--sans);
+      color: var(--text);
+      transition: background .3s ease, color .3s ease;
+    }
+
+    body::before {
+      content:'';
+      position:fixed; inset:0;
+      background: radial-gradient(ellipse at center,
+                                   var(--accent-dim) 0%,
+                                   rgba(46,204,113,0.02) 40%,
+                                   transparent 70%);
+      pointer-events:none; z-index:0;
+      transition: background .3s ease;
     }
 
     .full-screen {
-      position: absolute; 
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: none; 
+      position:absolute; top:0; left:0;
+      width:100%; height:100%;
+      display:none;
+      flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center;
+      padding:30px; z-index:1;
+      overflow-y: auto;
+    }
+
+    .icon-preview {
+      width:110px; height:110px;
+      border-radius:24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8),
+                  0 0 40px var(--accent-dim);
+      margin-bottom:25px;
+      border: 1px solid rgba(46,204,113,0.18);
+      object-fit:cover;
+      aspect-ratio:1/1;
+      flex-shrink:0;
+    }
+
+    /* ─── 타이틀: Asset Flow와 동일한 Pinyon Script + 골드 시머 ─── */
+    @keyframes brandShimmer {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+    .brand-title {
+      font-family: var(--script);
+      font-size: 44px;
+      line-height: 1.1;
+      margin-bottom: 6px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent), var(--accent2));
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: brandShimmer 4s linear infinite;
+    }
+
+    .brand-sub {
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 3px;
+      font-weight: 600;
+      margin-bottom: 26px;
+      font-family: var(--sans);
+      text-transform: uppercase;
+    }
+
+    .description {
+      color: var(--sub);
+      margin-bottom: 32px;
+      line-height: 1.75;
+      font-size: 14px;
+      font-weight: 400;
+      max-width: 320px;
+    }
+
+    .guide-button {
+      background: linear-gradient(135deg, var(--accent) 0%, #1A8F4E 100%);
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 28px rgba(46,204,113,0.28),
+                  0 2px 8px rgba(0,0,0,0.4),
+                  inset 0 1px 0 rgba(255,255,255,0.15);
+      letter-spacing: 0.3px;
+      font-family: var(--sans);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .guide-button:active {
+      transform: translateY(1px);
+      box-shadow: 0 5px 14px rgba(46,204,113,0.25),
+                  inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+    .guide-button svg {
+      width: 16px; height: 16px;
+    }
+
+    .reset-link {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 24px;
+      text-decoration: underline;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      font-family: var(--sans);
+      transition: color .15s;
+      background: none;
+      border: none;
+    }
+    .reset-link:hover { color: var(--sub); }
+
+    /* 기기 배지 */
+    .device-badge {
+      display: inline-block;
+      font-size: 10px;
+      color: var(--sub);
+      letter-spacing: 2px;
+      font-family: var(--mono);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+    }
+
+    /* ─────────────────────────────────────────
+       설치 가이드 오버레이
+       ───────────────────────────────────────── */
+    #guide-overlay {
+      display:none;
+      position:fixed; inset:0;
+      background: rgba(10,20,16,0.92);
+      z-index:9999;
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
+      padding: 60px 30px 120px;
+      overflow-y: auto;
+    }
+    #guide-overlay.active { display: flex; }
+
+    .guide-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
       justify-content: center;
-      text-align: center;
-      box-sizing: border-box;
-      padding: 30px;
+      transition: background .15s;
+      z-index: 10;
+    }
+    .guide-close:hover { background: rgba(255,255,255,0.14); }
+
+    .guide-title {
+      font-family: var(--script);
+      font-size: 32px;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.1;
+    }
+    .guide-subtitle {
+      font-size: 11px;
+      color: var(--sub);
+      letter-spacing: 3px;
+      font-family: var(--mono);
+      font-weight: 500;
+      margin-bottom: 32px;
+      text-transform: uppercase;
     }
 
-    .icon-preview { 
-      width: 110px; height: 110px; border-radius: 24px; 
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8); 
-      margin-bottom: 25px; border: 1px solid #212924;
-      object-fit: cover; flex-shrink: 0; aspect-ratio: 1/1;
+    .guide-steps {
+      width: 100%;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    /* 4. 강조 텍스트 색상 변경 */
-    h2 { color: var(--primary); margin-bottom: 15px; font-size: 26px; font-weight: 800; }
-    
-    .guide-button {
-      /* 5. 버튼 그라데이션 변경 */
-      background: linear-gradient(135deg, var(--secondary), var(--primary));
-      color: white; padding: 14px 28px; border-radius: 50px;
-      font-weight: 700; font-size: 16px; border: none; cursor: pointer;
-      box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+    .guide-step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
     }
 
-    #guide-overlay {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85); z-index: 9999; backdrop-filter: blur(8px);
+    .step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #0A1410;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: var(--mono);
     }
-    .instruction { position: absolute; bottom: 100px; width: 100%; text-align: center; padding: 20px; }
-    
-    /* 6. 화살표 색상 변경 */
-    .arrow { font-size: 50px; color: var(--primary); animation: bounce 1s infinite; margin-top: 20px; }
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(15px); } }
 
-    /* 7. 로딩 텍스트 색상 및 문구 변경 */
-    .flowing-text { color: var(--secondary); font-weight: bold; font-size: 1.1em; letter-spacing: 4px; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-    
-    .fallback-msg { color: #444; font-size: 12px; margin-top: 20px; text-decoration: underline; cursor: pointer; }
+    .step-icon {
+      width: 32px; height: 32px;
+      color: var(--accent);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-icon svg {
+      width: 100%; height: 100%;
+      fill: currentColor;
+    }
+
+    .step-text {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .step-text strong {
+      color: var(--accent2);
+      font-weight: 600;
+    }
+
+    /* 하단 화살표 - iOS용 */
+    @keyframes bounceDown {
+      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+      50%      { transform: translateX(-50%) translateY(10px); opacity: 1; }
+    }
+    .guide-arrow {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--accent);
+      animation: bounceDown 1.2s infinite ease-in-out;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .guide-arrow svg {
+      width: 24px; height: 24px;
+      fill: currentColor;
+    }
+
+    /* 로딩 브랜드 */
+    .loading-brand {
+      position:relative;
+      width:80px; height:80px;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom: 24px;
+    }
+    .lb-ring {
+      position:absolute; inset:0;
+      border-radius:50%;
+      border: 1.5px solid var(--accent);
+    }
+    @keyframes lbRingPulse  { 0%,100%{transform:scale(1);opacity:.25} 50%{transform:scale(1.18);opacity:.55} }
+    @keyframes lbRingPulse2 { 0%,100%{transform:scale(1);opacity:.15} 50%{transform:scale(1.32);opacity:.35} }
+    .lb-ring.r1 { animation: lbRingPulse 2.2s ease-in-out infinite; }
+    .lb-ring.r2 {
+      inset:-14px;
+      border-color: var(--accent-dim);
+      animation: lbRingPulse2 2.2s ease-in-out .4s infinite;
+    }
+    @keyframes lbShimmer {
+      0%   { background-position:-200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .lb-mark {
+      width:56px; height:56px;
+      border-radius:16px;
+      background: linear-gradient(135deg, var(--accent) 0%, #1A8F4E 100%);
+      display:flex; align-items:center; justify-content:center;
+      position:relative; overflow:hidden;
+      box-shadow: 0 8px 32px rgba(46,204,113,.25), 0 2px 8px rgba(0,0,0,.4);
+    }
+    .lb-mark::after {
+      content:'';
+      position:absolute; inset:0;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,.2) 40%,
+        rgba(255,255,255,.35) 50%,
+        rgba(255,255,255,.2) 60%,
+        transparent 100%);
+      background-size:200% 100%;
+      animation: lbShimmer 2.4s ease-in-out infinite;
+    }
+    .lb-af {
+      font-size:22px; font-weight:700;
+      color:#fff;
+      font-family: var(--mono);
+      letter-spacing:-.5px;
+      position:relative; z-index:1;
+    }
+
+    .loading-title {
+      font-family: var(--script);
+      font-size: 28px;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.1;
+    }
+    .loading-label {
+      font-size: 11px;
+      color: var(--sub);
+      letter-spacing: 4px;
+      font-family: var(--mono);
+      font-weight: 500;
+      margin-top: 6px;
+    }
+
+    @keyframes dotBounce {
+      0%,80%,100% { transform: translateY(0);   opacity:.35; }
+      40%         { transform: translateY(-7px); opacity:1;   }
+    }
+    .loading-dots {
+      display:flex; gap:6px;
+      justify-content:center;
+      margin-top: 18px;
+    }
+    .loading-dots span {
+      width:5px; height:5px;
+      border-radius:50%;
+      background: var(--accent);
+      opacity: .35;
+      animation: dotBounce 1.4s ease-in-out infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: .18s; }
+    .loading-dots span:nth-child(3) { animation-delay: .36s; }
+
+    .fallback-msg {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 32px;
+      text-decoration: underline;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      font-family: var(--sans);
+      transition: color .15s;
+    }
+    .fallback-msg:hover { color: var(--sub); }
   </style>
 
   <script>
-    /* ★★★★★ 8. 가장 중요: 본인의 Body Flow GAS URL로 교체하세요 ★★★★★ */
+    /* ═══ 본인의 Body Flow GAS URL (하드코딩) ═══ */
     const APP_URL = "https://script.google.com/macros/s/AKfycbwD_gMZLQSWU1Nn80nmIxMtmcicION07i8unILf0RmUj7aWQ437J4Gf0zUcq2ZQl8sN/exec";
 
-    function init() {
-      const isStandalone = window.navigator.standalone === true || 
-                           window.matchMedia('(display-mode: standalone)').matches;
+    let deferredInstallPrompt = null;
 
+    function detectDevice() {
+      const ua = navigator.userAgent;
+      const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+      const isAndroid = /Android/.test(ua);
+      return { isIOS, isAndroid };
+    }
+
+    function hideAllScreens() {
       document.getElementById('install-ui').style.display = 'none';
       document.getElementById('loading-ui').style.display = 'none';
+      document.getElementById('guide-overlay').classList.remove('active');
+    }
+
+    async function triggerInstall() {
+      /* Chrome 자동 설치 프롬프트 사용 가능 시 → 원클릭 설치 */
+      if (deferredInstallPrompt) {
+        try {
+          deferredInstallPrompt.prompt();
+          const choice = await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          updateInstallButton();
+          if (choice.outcome !== 'accepted') {
+            showGuide();
+          }
+        } catch (e) {
+          console.warn('Install prompt failed:', e);
+          showGuide();
+        }
+        return;
+      }
+      /* 프롬프트 없음 → 가이드 표시 */
+      showGuide();
+    }
+
+    function showGuide() {
+      const device = detectDevice();
+      const iosGuide = document.getElementById('guide-ios');
+      const androidGuide = document.getElementById('guide-android');
+      const arrow = document.getElementById('guide-arrow-ios');
+
+      if (device.isIOS) {
+        iosGuide.style.display = 'block';
+        androidGuide.style.display = 'none';
+        arrow.style.display = 'flex';
+      } else {
+        iosGuide.style.display = 'none';
+        androidGuide.style.display = 'block';
+        arrow.style.display = 'none';
+      }
+
+      document.getElementById('guide-overlay').classList.add('active');
+    }
+
+    function closeGuide() {
+      document.getElementById('guide-overlay').classList.remove('active');
+    }
+
+    function updateInstallButton() {
+      const btn = document.getElementById('install-btn');
+      const badge = document.getElementById('device-badge');
+      if (!btn) return;
+
+      const device = detectDevice();
+
+      if (deferredInstallPrompt) {
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>홈 화면에 설치`;
+        if (badge) badge.textContent = '⚡ ONE-TAP INSTALL';
+      } else if (device.isIOS) {
+        btn.textContent = '앱 설치 가이드';
+        if (badge) badge.textContent = 'iOS SAFARI';
+      } else if (device.isAndroid) {
+        btn.textContent = '앱 설치 가이드';
+        if (badge) badge.textContent = 'ANDROID';
+      } else {
+        btn.textContent = '앱 설치 가이드';
+        if (badge) badge.textContent = 'DESKTOP';
+      }
+    }
+
+    function init() {
+      hideAllScreens();
+
+      const isStandalone = window.navigator.standalone === true ||
+                           window.matchMedia('(display-mode: standalone)').matches;
 
       if (isStandalone) {
-        // [실행 모드]
-        const loadingUI = document.getElementById('loading-ui');
-        loadingUI.style.display = 'flex'; 
-        
-        setTimeout(function() {
-          window.location.href = APP_URL;
-        }, 300);
-      } else {
-        // [설치 모드]
-        const installUI = document.getElementById('install-ui');
-        installUI.style.display = 'flex'; 
+        /* [실행 모드] 홈화면 아이콘으로 열렸을 때 → GAS로 리다이렉트 */
+        document.getElementById('loading-ui').style.display = 'flex';
+        setTimeout(() => { window.location.href = APP_URL; }, 300);
+        return;
       }
+
+      /* [설치 모드] 브라우저에서 열렸을 때 → 설치 유도 UI */
+      document.getElementById('install-ui').style.display = 'flex';
+      updateInstallButton();
+    }
+
+    /* PWA 설치 프롬프트 캡처 */
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      updateInstallButton();
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      updateInstallButton();
+      closeGuide();
+    });
+
+    /* Service Worker 등록 */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.warn('SW registration failed:', err);
+        });
+      });
     }
 
     document.addEventListener("DOMContentLoaded", init);
@@ -104,28 +541,135 @@
 </head>
 <body>
 
+  <!-- ① 설치 안내 화면 -->
   <div id="install-ui" class="full-screen">
-    <img src="icon.png" class="icon-preview">
-    <h2>Body Flow</h2> <p style="color:#888; margin-bottom: 30px; line-height: 1.6;">
-      스마트한 체형 및 건강 관리를 위해<br>아래 버튼을 눌러 앱을 설치하세요.
+    <img src="./icon.png?v=1" class="icon-preview" alt="Body Flow">
+    <div class="brand-title">Body Flow</div>
+    <div class="brand-sub">FITNESS</div>
+    <div class="device-badge" id="device-badge">DETECTING...</div>
+    <p class="description">
+      나의 몸을 한 걸음씩, 단단하게.<br>
+      홈 화면에 설치하고 매일 기록하세요.
     </p>
-    <button class="guide-button" onclick="document.getElementById('guide-overlay').style.display='block'">앱 설치 가이드</button>
+    <button class="guide-button" id="install-btn" onclick="triggerInstall()">
+      앱 설치
+    </button>
   </div>
 
+  <!-- ② 로딩 화면 -->
   <div id="loading-ui" class="full-screen">
-    <img src="icon.png" class="icon-preview" style="width:80px; height:80px; box-shadow:none; opacity:0.5;">
-    <div class="flowing-text">BODY FLOWING...</div>
-    <div class="fallback-msg" onclick="window.location.href=APP_URL">페이지가 멈췄다면 여기를 터치하세요.</div>
+    <div class="loading-brand">
+      <div class="lb-ring r1"></div>
+      <div class="lb-ring r2"></div>
+      <div class="lb-mark">
+        <span class="lb-af">BF</span>
+      </div>
+    </div>
+    <div class="loading-title">Body Flow</div>
+    <div class="loading-label">LOADING WORKOUT</div>
+    <div class="loading-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="fallback-msg" onclick="window.location.href=APP_URL">
+      페이지가 멈췄다면 여기를 터치하세요
+    </div>
   </div>
 
-  <div id="guide-overlay" onclick="this.style.display='none'">
-    <div class="instruction">
-      <h3 style="color:var(--primary);">앱 설치 방법</h3>
-      <p style="color:#ccc; font-size: 14px;">
-        1. 하단 메뉴의 <strong>공유</strong> 버튼을 클릭<br>
-        2. <strong>'홈 화면에 추가'</strong>를 선택하세요.
-      </p>
-      <div class="arrow">↓</div>
+  <!-- 설치 가이드 오버레이 -->
+  <div id="guide-overlay">
+    <button class="guide-close" onclick="closeGuide()">×</button>
+
+    <div class="guide-title">홈 화면에 추가</div>
+    <div class="guide-subtitle">INSTALL GUIDE</div>
+
+    <!-- iOS Safari 가이드 -->
+    <div id="guide-ios" style="display:none; width:100%; max-width:340px;">
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="step-num">1</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2L8 6l1.41 1.41L11 5.83V16h2V5.83l1.59 1.58L16 6l-4-4zM5 20V10h3V8H3v14h18V8h-5v2h3v10H5z"/>
+            </svg>
+          </div>
+          <div class="step-text">
+            하단의 <strong>공유</strong> 버튼을 탭하세요
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="step-num">2</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 11h-4v4h-2v-4H7v-2h4V8h2v4h4v2z"/>
+            </svg>
+          </div>
+          <div class="step-text">
+            <strong>홈 화면에 추가</strong>를 선택하세요
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="step-num">3</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </div>
+          <div class="step-text">
+            우측 상단 <strong>추가</strong>를 탭하면 완료
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 안드로이드 수동 가이드 -->
+    <div id="guide-android" style="display:none; width:100%; max-width:340px;">
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="step-num">1</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+            </svg>
+          </div>
+          <div class="step-text">
+            우측 상단 <strong>⋮ 메뉴</strong>를 탭하세요
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="step-num">2</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 11h-4v4h-2v-4H7v-2h4V8h2v4h4v2z"/>
+            </svg>
+          </div>
+          <div class="step-text">
+            <strong>홈 화면에 추가</strong> 또는 <strong>앱 설치</strong>를 선택하세요
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="step-num">3</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </div>
+          <div class="step-text">
+            <strong>추가</strong> 버튼을 탭하면 완료
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- iOS 전용 하단 화살표 -->
+    <div class="guide-arrow" id="guide-arrow-ios" style="display:none;">
+      <span>공유 버튼</span>
+      <svg viewBox="0 0 24 24">
+        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+      </svg>
     </div>
   </div>
 
